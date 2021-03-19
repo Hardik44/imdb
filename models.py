@@ -63,21 +63,29 @@ class MovieGenre(db.Model):
 
 def populate_db():
     import json
-    data = json.loads(open("sample_data/imdb.json").read())
+
+    with open("sample_data/imdb.json", "r") as f:
+        data = json.loads(f.read())
+        f.close()
 
     for movie in data:
-        m = db.session.query(Movie).filter_by(name=movie['name']).first()
-
-        if not m:
-            continue
+        m = Movie()
+        m.name = movie['name']
+        m.director = movie['director']
+        m.imdb_score = movie['imdb_score']
+        m.popularity = movie['99popularity']
 
         for genre in movie['genre']:
             genre = genre.strip()
+            g = db.session.query(Genre).filter_by(name=genre).one_or_none()
 
-            if not db.session.query(Genre).filter_by(name=genre).one_or_none():
+            if not g:
                 g = Genre()
                 g.name = genre
-                m.genre.append(g)
+                db.session.add(g)
+                db.session.commit()
+
+            m.genre.append(g)
 
         db.session.add(m)
         db.session.commit()
