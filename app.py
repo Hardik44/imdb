@@ -21,7 +21,6 @@ import models
 def list_movies():
     results = {"objects": []}
     search_query = request.args.get('search')
-    print(session['current_user'])
 
     if search_query:
         movies = models.Movie.query\
